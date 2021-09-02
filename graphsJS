@@ -1,0 +1,86 @@
+const readline = require('readline');
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    prompt: '> ',
+});
+
+let countCities = 0;
+let countDel = 0;
+let lengthWay = 0;
+
+let roadsDelete = [];
+let arrayOfData = [];
+
+rl.prompt();
+
+rl.on('line', (line) => {
+    arrayOfData = line.split(' ')
+    if (countCities < 2 && lengthWay < 2) {
+        fillStartData(arrayOfData)
+        rl.prompt();
+    } else if (countDel !== roadsDelete.length) {
+        roadsDelete.push(arrayOfData)
+        if (countDel !== roadsDelete.length) {
+            rl.prompt();
+        } else {
+            calcMatrix()
+            rl.close()
+        }
+    }
+
+
+}).on('close', () => {
+    process.exit(0);
+});
+
+
+const fillStartData = arr => {
+    countCities = parseInt(arr[0]);
+    countDel = parseInt(arr[1]);
+    lengthWay = parseInt(arr[2]);
+}
+
+
+const calcMatrix = () => {
+    let matrix = [];
+    for (let i = 0; i < countCities; i++) {
+        matrix[i] = [];
+        for (let j = 0; j < countCities; j++) {
+            if (i === j) { matrix[i][j] = 0 } else { matrix[i][j] = 1 };
+        }
+    }
+
+    for (let road of roadsDelete) {
+        matrix[road[0] - 1][road[1] - 1] = 0
+    }
+    console.log(matrixPow(lengthWay, matrix)[0][0])
+}
+
+
+function multMatrix(A, B) {
+    let rowsA = A.length;
+    let rowsB = B.length;
+    let colsB = B[0].length;
+    let C = [];
+
+    for (let i = 0; i < rowsA; i++) { C[i] = new Array(colsB); }
+
+    for (let k = 0; k < colsB; k++) {
+        for (let i = 0; i < rowsA; i++) {
+            let temp = 0;
+            for (let j = 0; j < rowsB; j++) {
+                temp += (A[i][j] * B[j][k])
+            }
+            C[i][k] = temp;
+        }
+    }
+
+    return C;
+}
+
+
+function matrixPow(n, A) {
+    if (n === 1) return A;
+    else return multMatrix(A, matrixPow(n - 1, A));
+}
